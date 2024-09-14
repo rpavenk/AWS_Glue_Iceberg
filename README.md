@@ -1,0 +1,1 @@
+Supply the values for 'source_db', 'source_table', 'destination_db', 'destination_table', 'primary_key' to iterate the Glue job to transform file from CSV (raw format) to Apache Iceberg (Curated layer) using 'lastupdatedon' column to deduplicate the records and partition data on Year and Month and merge records to destination Glue Database.
