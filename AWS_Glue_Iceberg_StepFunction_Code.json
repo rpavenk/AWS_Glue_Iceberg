@@ -1,0 +1,68 @@
+{
+  "Comment": "Glue ETL Flow for Demo Data Lake Raw to Curated Iceberg",
+  "StartAt": "Glue_StartJobRun_Test_Table",
+  "States": {
+    "Glue_StartJobRun_Demo_Test_Table": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "Demo_Raw_to_Curated_Iceberg_All",
+        "Arguments": {
+          "--source_table": "raw_test",
+          "--destination_table": "curated_test",
+          "--primary_key": "testid"
+        }
+      },
+      "Next": "WaitForTestTableCompletion"
+    },
+    "WaitForTestTableCompletion": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Glue_StartJobRun_Demo_Sample_Table"
+    },
+    "Glue_StartJobRun_Demo_Sample_Table": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "Demo_Raw_to_Curated_Iceberg_All",
+        "Arguments": {
+          "--source_table": "raw_sample",
+          "--destination_table": "curated_sample",
+          "--primary_key": "sampleid"
+        }
+      },
+      "Next": "WaitForSampleTableCompletion"
+    },
+    "WaitForSampleTableCompletion": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Glue_StartJobRun_Demo_Job_Table"
+    },
+    "Glue_StartJobRun_Demo_Job_Table": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "Demo_Raw_to_Curated_Iceberg_All",
+        "Arguments": {
+          "--source_table": "raw_job",
+          "--destination_table": "curated_job",
+          "--primary_key": "jobid"
+        }
+      },
+      "Next": "WaitForJobTableCompletion"
+    },
+    "WaitForJobTableCompletion": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "RunCrawler_CuratedTable_Update"
+    },
+    "RunCrawler_CuratedTable_Update": {
+      "Type": "Task",
+      "Parameters": {
+        "Name": "demo-curated-iceberg"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "End": true
+    }
+  }
+}
